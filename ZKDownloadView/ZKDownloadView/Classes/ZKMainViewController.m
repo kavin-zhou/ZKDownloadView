@@ -29,7 +29,7 @@
     [super viewDidLoad];
     
     self.title  = @"JSDownloadAnimation";
-    self.view.backgroundColor = XNColor(41, 158, 239, 1);
+    self.view.backgroundColor = ZKColor(41, 158, 239, 1);
     
     [self initData];
     

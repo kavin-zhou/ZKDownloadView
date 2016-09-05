@@ -15,16 +15,11 @@
     SEL _action;
 }
 
-//进度圈
-@property (nonatomic, strong) CAShapeLayer *realCircleLayer;
-//底圈
-@property (nonatomic, strong) CAShapeLayer *maskCircleLayer;
-//箭头
-@property (nonatomic, strong) CAShapeLayer *arrowLayer;
-//竖线
-@property (nonatomic, strong) CAShapeLayer *verticalLineLayer;
-
-@property (nonatomic, retain) UILabel *progressLabel;
+@property (nonatomic, strong) CAShapeLayer *realCircleLayer; //!< 进度圈
+@property (nonatomic, strong) CAShapeLayer *maskCircleLayer; //!< 底圈
+@property (nonatomic, strong) CAShapeLayer *arrowLayer;      //!< 箭头
+@property (nonatomic, strong) CAShapeLayer *verticalLineLayer; //!< 竖线
+@property (nonatomic, strong) UILabel      *progressLabel;
 
 /* 波浪属性 */
 @property (nonatomic, assign) CGFloat offset;
@@ -32,7 +27,7 @@
 @property (nonatomic, assign) CGFloat waveSpeed;
 @property (nonatomic, assign) CGFloat waveHeight;
 
-@property (nonatomic, strong) ZKAnimationManager *service;
+@property (nonatomic, strong) ZKAnimationManager *animationManager;
 
 @end
 
@@ -40,20 +35,11 @@
 
 #pragma mark - Init
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        [self initialize];
-    }
-    return self;
-}
-
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [self initialize];
+        [self setup];
     }
     return self;
 }
@@ -62,30 +48,29 @@
 {
     self = [super initWithCoder:coder];
     if (self) {
-        [self initialize];
+        [self setup];
     }
     return self;
 }
 
-- (void)initialize{
+- (void)setup
+{
+    self.progressWidth = 4.f;
+    self.waveSpeed = 1.f;
+    self.waveCurvature = 0.25f;
+    self.waveHeight = 3.f;
     
-    self.progressWidth = 4;
-    self.waveSpeed = 1.0;
-    self.waveCurvature = .25;
-    self.waveHeight = 3;
-    
-    self.service = [[ZKAnimationManager alloc] init];
-    self.service.viewRect = self.frame;
+    self.animationManager = [[ZKAnimationManager alloc] init];
+    self.animationManager.viewRect = self.frame;
     
     [self setDefaultPaths];
     
 }
 
-
 #pragma mark - Lazy View
 
-- (CAShapeLayer *)maskCircleLayer{
-    
+- (CAShapeLayer *)maskCircleLayer
+{
     if (!_maskCircleLayer) {
         _maskCircleLayer = [self getOriginLayer];
         _maskCircleLayer.strokeColor = [[UIColor whiteColor] colorWithAlphaComponent:0.3].CGColor;
@@ -96,8 +81,8 @@
     return _maskCircleLayer;
 }
 
-- (CAShapeLayer *)realCircleLayer{
-    
+- (CAShapeLayer *)realCircleLayer
+{
     if (!_realCircleLayer) {
         _realCircleLayer = [self getOriginLayer];
         _realCircleLayer.strokeColor = [[UIColor whiteColor] colorWithAlphaComponent:1].CGColor;
@@ -108,8 +93,8 @@
     return _realCircleLayer;
 }
 
-- (CAShapeLayer *)getOriginLayer{
-    
+- (CAShapeLayer *)getOriginLayer
+{
     CAShapeLayer *layer = [CAShapeLayer layer];
     layer.frame = [self bounds];
     layer.lineWidth = self.progressWidth;
@@ -118,8 +103,8 @@
     return layer;
 }
 
-- (CAShapeLayer *)arrowLayer{
-    
+- (CAShapeLayer *)arrowLayer
+{
     if (!_arrowLayer) {
         _arrowLayer = [CAShapeLayer layer];
         _arrowLayer.frame = [self bounds];
@@ -133,8 +118,8 @@
     return _arrowLayer;
 }
 
-- (CAShapeLayer *)verticalLineLayer{
-    
+- (CAShapeLayer *)verticalLineLayer
+{
     if (!_verticalLineLayer) {
         _verticalLineLayer = [CAShapeLayer layer];
         _verticalLineLayer.frame = [self bounds];
@@ -148,10 +133,10 @@
     return _verticalLineLayer;
 }
 
-- (UILabel *)progressLabel{
-    
+- (UILabel *)progressLabel
+{
     if (!_progressLabel) {
-        _progressLabel = [[UILabel alloc] initWithFrame:[self.service getProgressRect]];
+        _progressLabel = [[UILabel alloc] initWithFrame:[self.animationManager getProgressRect]];
         _progressLabel.textColor = [UIColor whiteColor];
         _progressLabel.textAlignment = NSTextAlignmentCenter;
         _progressLabel.adjustsFontSizeToFitWidth = YES;
@@ -163,8 +148,8 @@
 
 #pragma mark - Method
 
-- (void)setProgressWidth:(CGFloat)progressWidth{
-    
+- (void)setProgressWidth:(CGFloat)progressWidth
+{
     _progressWidth = progressWidth;
     
     self.realCircleLayer.lineWidth = progressWidth;
@@ -173,20 +158,20 @@
     self.arrowLayer.lineWidth = progressWidth-1;
 }
 
-- (void)setDefaultPaths{
-    
+- (void)setDefaultPaths
+{
     //箭头开始
-    self.arrowLayer.path = self.service.arrowStartPath.CGPath;
+    self.arrowLayer.path = self.animationManager.arrowStartPath.CGPath;
     //竖线
-    _verticalLineLayer.path = self.service.verticalLineStartPath.CGPath;
+    _verticalLineLayer.path = self.animationManager.verticalLineStartPath.CGPath;
 }
 
-- (void)setProgress:(CGFloat)progress{
-    
+- (void)setProgress:(CGFloat)progress
+{
     _progress = MAX( MIN(progress, 1.0), 0.0); // keep it between 0 and 1
     
     //进度
-    self.realCircleLayer.path = [self.service getCirclePathWithProgress:_progress].CGPath;
+    self.realCircleLayer.path = [self.animationManager getCirclePathWithProgress:_progress].CGPath;
     
     //浪
     [self wave];
@@ -203,14 +188,14 @@
     }
 }
 
-- (void)stopAllAnimations{
-    
+- (void)stopAllAnimations
+{
     [self removeProgressLabel];
     [self.verticalLineLayer removeAllAnimations];
     [self.arrowLayer removeAllAnimations];
-    if (!self.service.progressPath.empty) {
-        [self.service.progressPath removeAllPoints];
-        self.realCircleLayer.path = self.service.progressPath.CGPath;
+    if (!self.animationManager.progressPath.empty) {
+        [self.animationManager.progressPath removeAllPoints];
+        self.realCircleLayer.path = self.animationManager.progressPath.CGPath;
         
     }
 }
@@ -218,35 +203,35 @@
 
 #pragma mark - Animation
 
-- (void)startAnimationBeforeCircle{
-    
-    CAAnimationGroup *lineAnimation = [self.service getLineToPointUpAnimationWithValues:@[
-                                                                                          (__bridge id)self.service.verticalLineStartPath.CGPath,
-                                                                                          (__bridge id)self.service.verticalLineEndPath.CGPath
+- (void)startAnimationBeforeCircle
+{
+    CAAnimationGroup *lineAnimation = [self.animationManager getLineToPointUpAnimationWithValues:@[
+                                                                                          (__bridge id)self.animationManager.verticalLineStartPath.CGPath,
+                                                                                          (__bridge id)self.animationManager.verticalLineEndPath.CGPath
                                                                                           ]];
     
     lineAnimation.delegate  = self;
     [self.verticalLineLayer addAnimation:lineAnimation forKey:kLineToPointUpAnimationKey];
     
-    CAAnimationGroup*arrowGroup = [self.service getArrowToLineAnimationWithValues:@[
-                                                                                    (__bridge id)self.service.arrowStartPath.CGPath,
-                                                                                    (__bridge id)self.service.arrowDownPath.CGPath,
-                                                                                    (__bridge id)self.service.arrowMidtPath.CGPath,
-                                                                                    (__bridge id)self.service.arrowEndPath.CGPath
+    CAAnimationGroup*arrowGroup = [self.animationManager getArrowToLineAnimationWithValues:@[
+                                                                                    (__bridge id)self.animationManager.arrowStartPath.CGPath,
+                                                                                    (__bridge id)self.animationManager.arrowDownPath.CGPath,
+                                                                                    (__bridge id)self.animationManager.arrowMidtPath.CGPath,
+                                                                                    (__bridge id)self.animationManager.arrowEndPath.CGPath
                                                                                     ]];
     arrowGroup.delegate  = self;
     [self.arrowLayer addAnimation:arrowGroup forKey:kArrowToLineAnimationKey];
     
 }
 
-- (void)removeArrowLayer{
-    
+- (void)removeArrowLayer
+{
     [self.arrowLayer removeFromSuperlayer];
     self.arrowLayer = nil;
 }
 
-- (void)removeProgressLabel{
-    
+- (void)removeProgressLabel
+{
     if (self.progressLabel) {
         [self.progressLabel removeFromSuperview];
         [self.progressLabel.layer removeAllAnimations];
@@ -254,19 +239,19 @@
     }
 }
 
-- (void)wave{
-    
+- (void)wave
+{
     self.offset += self.waveSpeed;
     
-    self.arrowLayer.path = [self.service getWavePathWithOffset:self.offset
+    self.arrowLayer.path = [self.animationManager getWavePathWithOffset:self.offset
                                                     WaveHeight:self.waveHeight
                                                  WaveCurvature:self.waveCurvature].CGPath;
     
 }
 
-- (void)showProgressLabel:(BOOL)isShow{
-    
-    CASpringAnimation *springAnimation = [self.service getProgressAnimationShow:isShow];
+- (void)showProgressLabel:(BOOL)isShow
+{
+    CASpringAnimation *springAnimation = [self.animationManager getProgressAnimationShow:isShow];
     [self.progressLabel.layer addAnimation:springAnimation forKey:kProgressAnimationKey];
     if (!isShow) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -275,17 +260,19 @@
     }
 }
 
-- (void)showSuccessAnimation{
-    
-    //    self.arrowLayer.path = self.service.arrowEndPath.CGPath;
-    
-    //    CAKeyframeAnimation *animation = [self.service getLineToSuccessAnimationWithValues:@[
-    //                                                                                         (__bridge id)self.service.arrowEndPath.CGPath,
-    //                                                                                         (__bridge id)self.service.succesPath.CGPath
-    //                                                                                         ]];
-    CAAnimationGroup *group = [self.service getLineToSuccessAnimationWithValues:@[
-                                                                                  (__bridge id)self.service.arrowEndPath.CGPath,
-                                                                                  (__bridge id)self.service.succesPath.CGPath
+- (void)showSuccessAnimation
+{
+    /**
+     self.arrowLayer.path = self.animationManager.arrowEndPath.CGPath;
+     
+     CAKeyframeAnimation *animation = [self.animationManager getLineToSuccessAnimationWithValues:@[
+     (__bridge id)self.animationManager.arrowEndPath.CGPath,
+     (__bridge id)self.animationManager.succesPath.CGPath
+     ]];
+     */
+    CAAnimationGroup *group = [self.animationManager getLineToSuccessAnimationWithValues:@[
+                                                                                  (__bridge id)self.animationManager.arrowEndPath.CGPath,
+                                                                                  (__bridge id)self.animationManager.succesPath.CGPath
                                                                                   ]];
     
     [self.arrowLayer addAnimation:group forKey:kSuccessAnimationKey];
@@ -296,15 +283,7 @@
 
 - (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag
 {
-    if ([self.verticalLineLayer animationForKey:kLineToPointUpAnimationKey]==anim)
-    {
-        /*  block 形式点击回调   */
-        
-        //        if (self.didClickBlock) {
-        //            self.didClickBlock();
-        //        }
-        
-        /*  UIcontrol 形式响应   */
+    if ([self.verticalLineLayer animationForKey:kLineToPointUpAnimationKey] == anim) {
         //移除当前arrow
         [self removeArrowLayer];
         //显示progress
@@ -312,15 +291,14 @@
         if ([_target respondsToSelector:_action]) {
             [_target performSelectorOnMainThread:_action withObject:nil waitUntilDone:NO];
         }
-        
     }
 }
 
 
 #pragma mark - Hit
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
-    
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
     [super touchesEnded:touches withEvent:event];
     
     /* 判断点击区域是否在圆内 */
@@ -334,16 +312,13 @@
         [self stopAllAnimations];
         
         [self startAnimationBeforeCircle];
-        
     }
-    
 }
 
+#pragma mark - Overwrite
 
-#pragma mark - override
-
-- (void)addTarget:(id)target action:(SEL)action forControlEvents:(UIControlEvents)controlEvents{
-    
+- (void)addTarget:(id)target action:(SEL)action forControlEvents:(UIControlEvents)controlEvents
+{
     _target  = target;
     _action = action;
 }

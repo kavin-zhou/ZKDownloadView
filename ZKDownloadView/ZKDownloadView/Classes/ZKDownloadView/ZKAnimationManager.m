@@ -88,8 +88,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
 
 @implementation ZKAnimationManager
 
-- (CAAnimationGroup *)getLineToPointUpAnimationWithValues:(NSArray *)values{
-    
+- (CAAnimationGroup *)getLineToPointUpAnimationWithValues:(NSArray *)values
+{
     CAKeyframeAnimation *lineAnimation = [CAKeyframeAnimation animationWithKeyPath:keyPath_Path];
     lineAnimation.values = values;
     lineAnimation.keyTimes = @[@0,@.15];
@@ -117,8 +117,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     return lineGroup;
 }
 
-- (CAAnimationGroup *)getArrowToLineAnimationWithValues:(NSArray *)values{
-    
+- (CAAnimationGroup *)getArrowToLineAnimationWithValues:(NSArray *)values
+{
     CAKeyframeAnimation *arrowChangeAnimation = [CAKeyframeAnimation animationWithKeyPath:keyPath_Path];
     arrowChangeAnimation.values = values;
     arrowChangeAnimation.keyTimes = @[@0,@.15,@.25,@.28];
@@ -132,8 +132,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     return arrowGroup;
 }
 
-- (void)setViewRect:(CGRect)viewRect{
-    
+- (void)setViewRect:(CGRect)viewRect
+{
     _viewRect = viewRect;
     
     CGFloat viewWidth = CGRectGetWidth(viewRect);
@@ -159,9 +159,10 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     
     verticalLinePointX = (viewWidth-arrowLineH)/2;
 }
+
 //箭头开始
-- (UIBezierPath *)arrowStartPath{
-    
+- (UIBezierPath *)arrowStartPath
+{
     _arrowStartPath = [UIBezierPath bezierPath];
     [_arrowStartPath moveToPoint:CGPointMake(arrowPointX, arrowPointY)];
     [_arrowStartPath addLineToPoint:CGPointMake(halfSquare,linePoinY+arrowLineH)];
@@ -170,46 +171,54 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     return _arrowStartPath;
 }
 //箭头开始
-- (UIBezierPath *)arrowDownPath{
+- (UIBezierPath *)arrowDownPath
+{
     _arrowDownPath = [UIBezierPath bezierPath];
     [_arrowDownPath moveToPoint:CGPointMake(arrowPointX, arrowPointY+kSpacing)];
     [_arrowDownPath addLineToPoint:CGPointMake(halfSquare,linePoinY+arrowLineH+kSpacing)];
     [_arrowDownPath addLineToPoint:CGPointMake(arrowPointX+arrowTW, arrowPointY+kSpacing)];
     return _arrowDownPath;
 }
+
 //箭头开始
-- (UIBezierPath *)arrowMidtPath{
-    
+- (UIBezierPath *)arrowMidtPath
+{
     _arrowMidtPath = [UIBezierPath bezierPath];
     [_arrowMidtPath moveToPoint:CGPointMake(midPointX, halfSquare)];
     [_arrowMidtPath addLineToPoint:CGPointMake(midPointX+lineW/2,halfSquare-kSpacing*2)];
     [_arrowMidtPath addLineToPoint:CGPointMake(midPointX+lineW, halfSquare)];
     return _arrowMidtPath;
 }
+
 //直线
-- (UIBezierPath *)arrowEndPath{
+- (UIBezierPath *)arrowEndPath
+{
     _arrowEndPath = [UIBezierPath bezierPath];
     [_arrowEndPath moveToPoint:CGPointMake(midPointX, halfSquare)];
     [_arrowEndPath addLineToPoint:CGPointMake(halfSquare, halfSquare)];
     [_arrowEndPath addLineToPoint:CGPointMake(midPointX+lineW, halfSquare)];
     return _arrowEndPath;
 }
+
 //竖线
-- (UIBezierPath *)verticalLineStartPath{
+- (UIBezierPath *)verticalLineStartPath
+{
     _verticalLineStartPath = [UIBezierPath bezierPath];
     [_verticalLineStartPath moveToPoint:CGPointMake(halfSquare, verticalLinePointX)];
     [_verticalLineStartPath addLineToPoint:CGPointMake(halfSquare, verticalLinePointX+arrowLineH)];
     return _verticalLineStartPath;
 }
-- (UIBezierPath *)verticalLineEndPath{
+
+- (UIBezierPath *)verticalLineEndPath
+{
     _verticalLineEndPath = [UIBezierPath bezierPath];
     [_verticalLineEndPath moveToPoint:CGPointMake(halfSquare, verticalLineEndPointX)];
     [_verticalLineEndPath addLineToPoint:CGPointMake(halfSquare, verticalLineEndPointX)];
     return _verticalLineEndPath;
 }
 
-- (UIBezierPath *)succesPath{
-    
+- (UIBezierPath *)succesPath
+{
     _succesPath = [UIBezierPath bezierPath];
     
     CGFloat SW = CGRectGetWidth(self.viewRect);
@@ -246,8 +255,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
 
 - (UIBezierPath *)getWavePathWithOffset:(CGFloat)offset
                              WaveHeight:(CGFloat)height
-                          WaveCurvature:(CGFloat)curvature{
-    
+                          WaveCurvature:(CGFloat)curvature
+{
     waveHeight = height;
     
     CGFloat SW = CGRectGetWidth(self.viewRect);
@@ -262,8 +271,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     return _arrowWavePath;
 }
 
-- (CASpringAnimation *)getProgressAnimationShow:(BOOL)isShow{
-    
+- (CASpringAnimation *)getProgressAnimationShow:(BOOL)isShow
+{
     CASpringAnimation *progressAnimation = [CASpringAnimation animationWithKeyPath:keyPath_Scale];
     progressAnimation.fromValue = isShow==YES?@.3:@1;
     progressAnimation.toValue     = isShow==YES?@1:@.5;
@@ -275,8 +284,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     return progressAnimation;
 }
 
-- (CAAnimationGroup *)getLineToSuccessAnimationWithValues:(NSArray *)values{
-    
+- (CAAnimationGroup *)getLineToSuccessAnimationWithValues:(NSArray *)values
+{
     CAKeyframeAnimation *lineToSuccessAnimation = [CAKeyframeAnimation animationWithKeyPath:keyPath_Path];
     lineToSuccessAnimation.values = values;
     lineToSuccessAnimation.duration = .6;
@@ -304,7 +313,8 @@ static  NSString *keyPath_ContentW = @"contentsRect.size.width";
     return group;
 }
 
-- (CGRect)getProgressRect{
+- (CGRect)getProgressRect
+{
     CGFloat SW = CGRectGetWidth(self.viewRect);
     return CGRectMake(midPointX, SW/2+waveHeight*2, lineW, SW/4);
 }
