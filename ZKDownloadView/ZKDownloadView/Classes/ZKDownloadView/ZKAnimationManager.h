@@ -30,6 +30,7 @@ extern NSString *const kSuccessAnimationKey;
 @property (nonatomic, strong) UIBezierPath *verticalLineEndPath;
 
 @property (nonatomic, strong) UIBezierPath *succesPath;
+
 /**
  *  线到点动画
  *
@@ -38,6 +39,7 @@ extern NSString *const kSuccessAnimationKey;
  *  @return 动画组
  */
 - (CAAnimationGroup *)getLineToPointUpAnimationWithValues:(NSArray *)values;
+
 /**
  *  箭头到线的动画
  *
@@ -46,6 +48,7 @@ extern NSString *const kSuccessAnimationKey;
  *  @return 动画组
  */
 - (CAAnimationGroup *)getArrowToLineAnimationWithValues:(NSArray *)values;
+
 /**
  *  获取圆圈进度
  *
@@ -54,6 +57,7 @@ extern NSString *const kSuccessAnimationKey;
  *  @return path
  */
 - (UIBezierPath *)getCirclePathWithProgress:(CGFloat)progress;
+
 /**
  *  绘制波浪线
  *
@@ -66,6 +70,7 @@ extern NSString *const kSuccessAnimationKey;
 - (UIBezierPath *)getWavePathWithOffset:(CGFloat)offset
                              WaveHeight:(CGFloat)height
                           WaveCurvature:(CGFloat)curvature;
+
 /**
  *  是否显示进度label
  *
@@ -74,6 +79,7 @@ extern NSString *const kSuccessAnimationKey;
  *  @return 弹性动画
  */
 - (CASpringAnimation *)getProgressAnimationShow:(BOOL)isShow;
+
 /**
  *  线变成功动画
  *
@@ -82,6 +88,7 @@ extern NSString *const kSuccessAnimationKey;
  *  @return 动画组
  */
 - (CAAnimationGroup *)getLineToSuccessAnimationWithValues:(NSArray *)values;
+
 /**
  *  获取进度label Rect
  *
